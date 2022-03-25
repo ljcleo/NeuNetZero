@@ -72,5 +72,5 @@ class ImageClsMLP(Model):
         for i in range(len(hidden) - 1):
             layers.extend([ReLU(), Linear(hidden[i], hidden[i + 1], weight_init=Gaussian(0, 0.1))])
 
-        layers.extend([ReLU(), Linear(hidden[-1], n_class)])
+        layers.extend([ReLU(), Linear(hidden[-1], n_class, weight_init=Gaussian(0, 0.1))])
         return super(ImageClsMLP, self).__init__(layers)

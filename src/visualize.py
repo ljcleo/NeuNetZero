@@ -20,7 +20,7 @@ def visualize_params(model: ImageClsMLP, name: str, suffix: str, path: Path) -> 
             layer_count += 1
             plt.figure(figsize=(6, 6))
             plt.matshow(layer.get_params_and_grads()[0].reshape(-1, layer.bias.shape[1]), 0,
-                        cmap='gray', aspect='auto')
+                        cmap='PRGn', aspect='auto', vmin=-0.5, vmax=0.5)
 
             plt.colorbar()
             plt.title(f'Model "{name}" Linear Layer {layer_count} ({suffix.capitalize()})')

@@ -1,6 +1,8 @@
 from logging import Logger, StreamHandler, getLogger, FileHandler, Formatter
 from pathlib import Path
 
+from util import get_path
+
 
 def make_logger(name: str, root_path: Path, console: bool) -> Logger:
     logger: Logger = getLogger(name)
@@ -13,7 +15,8 @@ def make_logger(name: str, root_path: Path, console: bool) -> Logger:
         console_handler.setFormatter(formatter)
         logger.addHandler(console_handler)
 
-    file_handler: FileHandler = FileHandler(root_path / 'log' / f'{name}.log', 'w', encoding='utf8')
+    file_handler: FileHandler = FileHandler(get_path(root_path, 'log', name) / f'{name}.log', 'w',
+                                            encoding='utf8')
     file_handler.setLevel('INFO')
     file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)

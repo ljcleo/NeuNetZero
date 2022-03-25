@@ -9,15 +9,13 @@ from yaml import safe_load
 
 from dataset import MNISTDataset, PartialDataset, random_split
 from logger import make_logger
-from util import mnist_compare
+from task import mnist_compare
+from util import get_path
 from visualize import visualize_compare
 
 if __name__ == '__main__':
     np.random.seed(19260817)
     root_path: Path = Path('..')
-
-    for subfolder in ('log', 'img', 'model', 'out'):
-        (root_path / subfolder).mkdir(exist_ok=True)
 
     parser: ArgumentParser = ArgumentParser(description='MNIST MLP classifier trainer')
     parser.add_argument('-c', '--config', default='main', help='training config')
@@ -26,14 +24,15 @@ if __name__ == '__main__':
     logger: Logger = make_logger(config_name, root_path, True)
     logger.info(f'Loading model & training configuration from "{config_name}.yaml" ...')
 
-    with (root_path / 'config' / f'{config_name}.yaml').open('r', encoding='utf8') as f:
+    with (get_path(root_path, 'config') / f'{config_name}.yaml').open('r', encoding='utf8') as f:
         config: dict[str, Any] = safe_load(f)
     name: str = f'{config_name}-{config["name"]}'
 
+    data_path: Path = get_path(root_path, 'data')
     train_set: PartialDataset
     valid_set: PartialDataset
-    train_set, valid_set = random_split(MNISTDataset(root_path / 'data', 'training'), (0.9, 0.1))
-    test_set: MNISTDataset = MNISTDataset(root_path / 'data', 'test')
+    train_set, valid_set = random_split(MNISTDataset(data_path, 'training'), (0.9, 0.1))
+    test_set: MNISTDataset = MNISTDataset(data_path, 'test')
 
     compare_config: dict[str, Any] = config['compare']
     grid_search_config: dict[str, Any] = config['grid_search']
@@ -48,9 +47,10 @@ if __name__ == '__main__':
     )
 
     logger.info('Finished training. Writing results ...')
-    visualize_compare(compare_result, config_name, root_path / 'img')
+    visualize_compare(compare_result, config_name, get_path(root_path, 'img', name))
 
-    with (root_path / 'out' / f'{config_name}.csv').open('w', encoding='utf8', newline='') as f:
+    with (get_path(root_path, 'out') / f'{config_name}.csv').open('w', encoding='utf8',
+                                                                  newline='') as f:
         csv_writer = writer(f)
         csv_writer.writerow(('name', 'optimizer', 'scheduler', 'batch_size',
                              'best_lr', 'best_l2', 'best_hidden', 'test_acc'))

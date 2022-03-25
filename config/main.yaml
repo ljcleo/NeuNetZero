@@ -1,0 +1,46 @@
+name: mlp2
+shuffle: true
+drop_last: false
+max_epoch: 200
+patience: 10
+use_best_param: true
+compare:
+  optimizer:
+    - name: SGD
+    - name: MomentumSGD
+      params:
+        beta: 0.9
+  scheduler:
+    - name: null
+    - name: MilestoneLR
+      params:
+        milestones:
+          - 20
+          - 50
+          - 100
+        multipliers:
+          - 0.5
+          - 0.1
+          - 0.01
+    - name: ExpDecayLR
+      params:
+        alpha: 0.96
+  batch_size:
+    - 64
+    - 128
+    - 256
+    - 512
+    - 1024
+grid_search:
+  learning_rate:
+    - 0.00001
+    - 0.0001
+    - 0.001
+  l2_lambda:
+    - 0
+    - 0.00001
+    - 0.001
+  hidden_size:
+    - 256
+    - 512
+    - 1024

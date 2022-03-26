@@ -1,4 +1,5 @@
 name: mlp2
+dropout_rate: 0
 shuffle: true
 drop_last: false
 max_epoch: 10

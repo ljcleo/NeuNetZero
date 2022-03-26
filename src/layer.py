@@ -22,6 +22,10 @@ class Module(ABC):
     def set_params(self, params: np.ndarray) -> None:
         pass
 
+    @abstractmethod
+    def toggle_train(self, train: bool) -> None:
+        pass
+
 
 class Flatten(Module):
     def __init__(self) -> None:
@@ -38,6 +42,9 @@ class Flatten(Module):
         return np.array([]), np.array([])
 
     def set_params(self, params: np.ndarray) -> None:
+        pass
+
+    def toggle_train(self, train: bool) -> None:
         pass
 
 
@@ -86,6 +93,9 @@ class Linear(Module):
             self.weight = params.reshape(self.weight.shape)
             self.weight_grad = np.zeros_like(self.weight)
 
+    def toggle_train(self, train: bool) -> None:
+        pass
+
 
 class ReLU(Module):
     def __init__(self, alpha: float = 0) -> None:
@@ -107,3 +117,36 @@ class ReLU(Module):
 
     def set_params(self, params: np.ndarray) -> None:
         pass
+
+    def toggle_train(self, train: bool) -> None:
+        pass
+
+
+class Dropout(Module):
+    def __init__(self, rate: float) -> None:
+        self.rate: float = rate
+        self.train: bool = False
+
+    def forward(self, x: np.ndarray) -> np.ndarray:
+        shape: tuple[int, ...] = (1, ) + x.shape[1:]
+        self.mask: np.ndarray = (np.random.rand(*shape) > self.rate) / (1 - self.rate) \
+            if self.train else np.ones(shape, dtype=np.int32)
+        return x * self.mask
+
+    def backward(self, e: np.ndarray) -> np.ndarray:
+        return e * self.mask
+
+    def get_params_and_grads(self) -> tuple[np.ndarray, np.ndarray]:
+        return np.array([]), np.array([])
+
+    def get_state(self) -> np.ndarray:
+        return np.array([])
+
+    def set_params(self, params: np.ndarray) -> None:
+        pass
+
+    def set_state(self, state: np.ndarray) -> None:
+        pass
+
+    def toggle_train(self, train: bool) -> None:
+        self.train = train

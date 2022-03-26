@@ -39,7 +39,7 @@ if __name__ == '__main__':
     logger.info('Start training ...')
 
     compare_result: dict[str, tuple[str, str, int, float, float, int, float]] = mnist_compare(
-        test_set.image_size, 10, grid_search_config['learning_rate'],
+        test_set.image_size, 10, config['dropout_rate'], grid_search_config['learning_rate'],
         grid_search_config['l2_lambda'], grid_search_config['hidden_size'],
         compare_config['optimizer'], compare_config['scheduler'], compare_config['batch_size'],
         train_set, valid_set, test_set, config['shuffle'], config['drop_last'], config['max_epoch'],

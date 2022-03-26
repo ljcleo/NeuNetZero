@@ -4,7 +4,7 @@ from pickle import dump, load
 import numpy as np
 
 from initializer import Gaussian
-from layer import Flatten, Linear, Module, ReLU
+from layer import Dropout, Flatten, Linear, Module, ReLU
 
 
 class Model:
@@ -64,13 +64,23 @@ class Model:
         with path.open('wb') as f:
             dump(self.get_params_and_grads()[0], f)
 
+    def toggle_train(self, train: bool) -> None:
+        for module in self.modules:
+            module.toggle_train(train)
+
 
 class ImageClsMLP(Model):
-    def __init__(self, image_size: tuple[int, int], n_class: int, hidden: list[int]) -> None:
-        layers: list[Module] = [Flatten(), Linear(image_size[0] * image_size[1],
-                                                  hidden[0], weight_init=Gaussian(0, 0.1))]
+    def __init__(self, image_size: tuple[int, int], n_class: int, hidden: list[int],
+                 dropout_rate: float) -> None:
+        layers: list[Module] = [
+            Flatten(),
+            Linear(image_size[0] * image_size[1], hidden[0], weight_init=Gaussian(0, 0.1)),
+            Dropout(dropout_rate)
+        ]
+
         for i in range(len(hidden) - 1):
-            layers.extend([ReLU(), Linear(hidden[i], hidden[i + 1], weight_init=Gaussian(0, 0.1))])
+            layers.extend([ReLU(), Linear(hidden[i], hidden[i + 1], weight_init=Gaussian(0, 0.1)),
+                           Dropout(dropout_rate)])
 
         layers.extend([ReLU(), Linear(hidden[-1], n_class, weight_init=Gaussian(0, 0.1))])
         return super(ImageClsMLP, self).__init__(layers)

@@ -20,8 +20,8 @@ optimizer_dict: dict[str, Type[Optimizer]] = {'SGD': SGD, 'MomentumSGD': Momentu
 scheduler_dict: dict[str, Type[Scheduler]] = {'ExpDecayLR': ExpDecayLR, 'MilestoneLR': MilestoneLR}
 
 
-def mnist_compare(image_size: tuple[int, int], n_class: int, learning_rate: list[float],
-                  l2_lambda: list[float], hidden_size: list[int],
+def mnist_compare(image_size: tuple[int, int], n_class: int, dropout_rate: float,
+                  learning_rate: list[float], l2_lambda: list[float], hidden_size: list[int],
                   optimizer: list[dict[str, Any]], scheduler: list[Optional[dict[str, Any]]],
                   batch_size: list[int], train_set: Dataset, valid_set: Dataset, test_set: Dataset,
                   shuffle: bool, drop_last: bool, max_epoch: int, patience: int,
@@ -42,7 +42,7 @@ def mnist_compare(image_size: tuple[int, int], n_class: int, learning_rate: list
                 test_loader: DataLoader = DataLoader(test_set, bs, False, False)
 
                 best_hyper_params: tuple[float, float, int] = mnist_grid_search(
-                    image_size, n_class, learning_rate, l2_lambda, hidden_size,
+                    image_size, n_class, dropout_rate, learning_rate, l2_lambda, hidden_size,
                     optimizer_dict[opt['name']], opt.get('params', {}),
                     None if sch['name'] is None else
                     scheduler_dict[sch['name']](**sch.get('params', {})),
@@ -50,7 +50,8 @@ def mnist_compare(image_size: tuple[int, int], n_class: int, learning_rate: list
                     root_path
                 )
 
-                best_model: ImageClsMLP = ImageClsMLP(image_size, n_class, [best_hyper_params[2]])
+                best_model: ImageClsMLP = ImageClsMLP(image_size, n_class, [best_hyper_params[2]],
+                                                      dropout_rate)
                 best_model.load_params(get_path(root_path, 'model', name) / f'{new_name}.pkl')
                 test_acc: float = evaluate(best_model, test_loader)
                 result[new_name] = (opt['name'], sch['name'], bs) + best_hyper_params + (test_acc, )
@@ -68,8 +69,8 @@ def mnist_compare(image_size: tuple[int, int], n_class: int, learning_rate: list
     return result
 
 
-def mnist_grid_search(image_size: tuple[int, int], n_class: int, learning_rate: list[float],
-                      l2_lambda: list[float], hidden_size: list[int],
+def mnist_grid_search(image_size: tuple[int, int], n_class: int, dropout_rate: float,
+                      learning_rate: list[float], l2_lambda: list[float], hidden_size: list[int],
                       optimizer_type: Type[Optimizer], optimizer_params: dict[str, Any],
                       scheduler: Optional[Scheduler], train_loader: DataLoader,
                       valid_loader: DataLoader, max_epoch: int, patience: int, use_best_param: bool,
@@ -87,7 +88,7 @@ def mnist_grid_search(image_size: tuple[int, int], n_class: int, learning_rate: 
         for j, l2 in enumerate(l2_lambda):
             for k, hidden in enumerate(hidden_size):
                 train_start_time: float = time()
-                model: ImageClsMLP = ImageClsMLP(image_size, n_class, [hidden])
+                model: ImageClsMLP = ImageClsMLP(image_size, n_class, [hidden], dropout_rate)
                 old_params: np.ndarray = model.get_params_and_grads()[0]
                 optimizer: Optimizer = optimizer_type(model=model, lr=lr, l2_lambda=l2,
                                                       **optimizer_params)
@@ -111,7 +112,8 @@ def mnist_grid_search(image_size: tuple[int, int], n_class: int, learning_rate: 
 
     img_path: Path = get_path(root_path, 'img', name)
     visualize_training(best_records[0], best_records[1], best_records[2], name, img_path)
-    final_model: ImageClsMLP = ImageClsMLP(image_size, n_class, [best_hyper_params[2]])
+    final_model: ImageClsMLP = ImageClsMLP(image_size, n_class, [best_hyper_params[2]],
+                                           dropout_rate)
     final_model.set_params(best_params[0])
     visualize_params(final_model, name, 'start', img_path)
     final_model.set_params(best_params[1])

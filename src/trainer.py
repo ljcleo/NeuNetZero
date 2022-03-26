@@ -82,6 +82,7 @@ class Trainer:
         return train_loss, valid_loss, valid_acc
 
     def _train_iter(self, input_batch: np.ndarray, output_batch: np.ndarray) -> float:
+        self.model.toggle_train(True)
         pred: np.ndarray = self.model.forward(input_batch)
         loss_grad: np.ndarray = self.loss.gradient(pred, output_batch)
         self.model.backward(loss_grad)
@@ -89,6 +90,7 @@ class Trainer:
         return self.loss.loss(pred, output_batch)
 
     def _evaluate_loss_acc(self, data: DataLoader) -> tuple[float, float]:
+        self.model.toggle_train(False)
         all_pred: list[np.ndarray] = []
         all_label: list[np.ndarray] = []
 

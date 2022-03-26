@@ -8,6 +8,7 @@ from model import Model
 
 
 def evaluate(model: Model, loader: DataLoader) -> float:
+    model.toggle_train(False)
     all_pred: list[np.ndarray] = []
     all_label: list[np.ndarray] = []
 

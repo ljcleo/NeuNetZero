@@ -25,7 +25,7 @@ def mnist_compare(image_size: tuple[int, int], n_class: int, dropout_rate: float
                   optimizer: list[dict[str, Any]], scheduler: list[Optional[dict[str, Any]]],
                   batch_size: list[int], train_set: Dataset, valid_set: Dataset, test_set: Dataset,
                   shuffle: bool, drop_last: bool, max_epoch: int, patience: int,
-                  use_best_param: bool, name: str,
+                  improve_threshold: float, use_best_param: bool, name: str,
                   root_path: Path) -> dict[str, tuple[str, str, int, float, float, int, float]]:
     result: dict[str, tuple[str, str, int, float, float, int, float]] = {}
     start_time: float = time()
@@ -46,8 +46,8 @@ def mnist_compare(image_size: tuple[int, int], n_class: int, dropout_rate: float
                     optimizer_dict[opt['name']], opt.get('params', {}),
                     None if sch['name'] is None else
                     scheduler_dict[sch['name']](**sch.get('params', {})),
-                    train_loader, valid_loader, max_epoch, patience, use_best_param, new_name,
-                    root_path
+                    train_loader, valid_loader, max_epoch, patience, improve_threshold,
+                    use_best_param, new_name, root_path
                 )
 
                 best_model: ImageClsMLP = ImageClsMLP(image_size, n_class, [best_hyper_params[2]],
@@ -73,8 +73,9 @@ def mnist_grid_search(image_size: tuple[int, int], n_class: int, dropout_rate: f
                       learning_rate: list[float], l2_lambda: list[float], hidden_size: list[int],
                       optimizer_type: Type[Optimizer], optimizer_params: dict[str, Any],
                       scheduler: Optional[Scheduler], train_loader: DataLoader,
-                      valid_loader: DataLoader, max_epoch: int, patience: int, use_best_param: bool,
-                      name: str, root_path: Path) -> tuple[float, float, int]:
+                      valid_loader: DataLoader, max_epoch: int, patience: int,
+                      improve_threshold: float, use_best_param: bool, name: str,
+                      root_path: Path) -> tuple[float, float, int]:
     best_hyper_params: Optional[tuple[float, float, int]] = None
     best_params: Optional[tuple[np.ndarray, np.ndarray]] = None
     best_records: Optional[tuple[list[float], list[float], list[float]]] = None
@@ -95,8 +96,8 @@ def mnist_grid_search(image_size: tuple[int, int], n_class: int, dropout_rate: f
 
                 trainer: Trainer = Trainer(model, SoftmaxNLL(), optimizer, scheduler)
                 records: tuple[list[float], list[float], list[float]] = trainer.train(
-                    train_loader, valid_loader, max_epoch, patience, use_best_param,
-                    make_logger(f'{name}-{i}{j}{k}', root_path, False)
+                    train_loader, valid_loader, max_epoch, patience, improve_threshold,
+                    use_best_param, make_logger(f'{name}-{i}{j}{k}', root_path, False)
                 )
 
                 valid_acc: float = evaluate(model, valid_loader)

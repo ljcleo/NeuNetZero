@@ -3,7 +3,8 @@ dropout_rate: 0
 shuffle: true
 drop_last: false
 max_epoch: 10
-patience: 10
+patience: 5
+improve_threshold: 0.001
 use_best_param: true
 compare:
   optimizer:
@@ -28,15 +29,15 @@ compare:
         init: 1
         alpha: 0.96
   batch_size:
+    - 64
     - 256
-    - 1024
 grid_search:
   learning_rate:
-    - 0.00001
-    - 0.0001
+    - 0.0002
+    - 0.001
   l2_lambda:
     - 0
-    - 0.00001
+    - 0.001
   hidden_size:
-    - 128
-    - 512
+    - 256
+    - 768

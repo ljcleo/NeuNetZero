@@ -43,7 +43,7 @@ if __name__ == '__main__':
         grid_search_config['l2_lambda'], grid_search_config['hidden_size'],
         compare_config['optimizer'], compare_config['scheduler'], compare_config['batch_size'],
         train_set, valid_set, test_set, config['shuffle'], config['drop_last'], config['max_epoch'],
-        config['patience'], config['use_best_param'], name, root_path
+        config['patience'], config['improve_threshold'], config['use_best_param'], name, root_path
     )
 
     logger.info('Finished training. Writing results ...')

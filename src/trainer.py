@@ -20,7 +20,7 @@ class Trainer:
         self.scheduler: Optional[Scheduler] = scheduler
 
     def train(self, train_loader: DataLoader, valid_loader: DataLoader, max_epoch: int,
-              patience: int, use_best_param: bool,
+              patience: int, improve_threshold: float, use_best_param: bool,
               logger: Logger) -> tuple[list[float], list[float], list[float]]:
         best_loss: float = self._evaluate_loss_acc(valid_loader)[0]
         best_params: np.ndarray = self.model.get_params_and_grads()[0]
@@ -63,7 +63,7 @@ class Trainer:
                             f'Validation Accuracy: {cur_valid_acc:.4f} ' +
                             f'Elapsed Time: {time() - batch_start_time:.2f}s')
 
-                if cur_valid_loss < best_loss:
+                if (best_loss - cur_valid_loss) / best_loss > improve_threshold:
                     best_loss = cur_valid_loss
                     best_params = self.model.get_params_and_grads()[0]
                     cur_patience = 0

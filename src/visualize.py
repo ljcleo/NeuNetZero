@@ -95,3 +95,23 @@ def visualize_compare(result: dict[str, tuple[str, str, int, float, float, int, 
     plt.tight_layout()
     plt.savefig(path / f'{name}-compare.png', dpi=150)
     plt.close()
+
+
+def visualize_test(input_batch: np.ndarray, output_batch: np.ndarray, pred: np.ndarray,
+                   columns: int, name: str, path: Path) -> None:
+    batch_size: int = input_batch.shape[0]
+    rows: int = (batch_size - 1) // columns + 1
+
+    style.use('Solarize_Light2')
+    plt.figure(figsize=(2 * columns, 2 * rows))
+
+    for i in range(batch_size):
+        plt.subplot(rows, columns, i + 1)
+        plt.imshow(input_batch[i], cmap='binary')
+        plt.axis('off')
+        plt.title(f'P{pred[i]}-L{output_batch[i]}')
+
+    plt.suptitle(f'Model "{name}" Error Case', size=20)
+    plt.tight_layout()
+    plt.savefig(path / f'{name}-errorcase.png', dpi=150)
+    plt.close()

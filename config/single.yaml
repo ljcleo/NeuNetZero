@@ -1,9 +1,9 @@
 name: mlp2
-dropout_rate: 0.25
+dropout_rate: 0
 shuffle: true
 drop_last: false
-max_epoch: 20
-patience: 5
+max_epoch: 2000
+patience: 10
 improve_threshold: 0.001
 use_best_param: true
 compare:
@@ -12,12 +12,9 @@ compare:
       params:
         beta: 0.9
   scheduler:
-    - name: ExpDecayLR
-      params:
-        init: 1
-        alpha: 0.96
+    - name: null
   batch_size:
-    - 256
+    - 128
 grid_search:
   learning_rate:
     - 0.001

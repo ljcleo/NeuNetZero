@@ -75,7 +75,7 @@ if __name__ == '__main__':
 
     visualize_compare(visualize_result, config_name, get_path(root_path, 'img', name))
 
-    with (get_path(root_path, 'out') / f'{config_name}-test.csv').open('w', encoding='utf8',
+    with (get_path(root_path, 'out') / f'{config_name}-eval.csv').open('w', encoding='utf8',
                                                                        newline='') as f:
         csv_writer = writer(f)
         csv_writer.writerow(('name', 'train_acc', 'test_acc'))

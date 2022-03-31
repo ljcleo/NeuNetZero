@@ -5,16 +5,16 @@ from typing import Any, Optional, Type
 
 import numpy as np
 
-from dataset import Dataset
-from loader import DataLoader
-from logger import make_logger
-from loss import SoftmaxNLL
-from model import ImageClsMLP
-from optimizer import SGD, MomentumSGD, Optimizer
-from scheduler import ExpDecayLR, MilestoneLR, Scheduler
-from trainer import Trainer
-from util import evaluate, get_path
-from visualize import visualize_params, visualize_training
+from ..data.dataset import Dataset
+from ..data.loader import DataLoader
+from ..nn.loss import SoftmaxNLL
+from ..nn.model import ImageClsMLP
+from ..nn.optimizer import SGD, MomentumSGD, Optimizer
+from ..nn.scheduler import ExpDecayLR, MilestoneLR, Scheduler
+from ..tool.logger import make_logger
+from ..tool.util import evaluate, get_path
+from ..tool.visualize import visualize_params, visualize_training
+from .trainer import Trainer
 
 optimizer_dict: dict[str, Type[Optimizer]] = {'SGD': SGD, 'MomentumSGD': MomentumSGD}
 scheduler_dict: dict[str, Type[Scheduler]] = {'ExpDecayLR': ExpDecayLR, 'MilestoneLR': MilestoneLR}

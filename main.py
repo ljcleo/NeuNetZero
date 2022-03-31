@@ -7,14 +7,14 @@ from typing import Any
 import numpy as np
 from yaml import safe_load
 
-from dataset import MNISTDataset, PartialDataset, random_split
-from logger import make_logger
-from task import mnist_compare
-from util import get_path
+from src.data.dataset import MNISTDataset, PartialDataset, random_split
+from src.tool.logger import make_logger
+from src.tool.util import get_path
+from src.train.task import mnist_compare
 
 if __name__ == '__main__':
     np.random.seed(19260817)
-    root_path: Path = Path('..')
+    root_path: Path = Path('.')
 
     parser: ArgumentParser = ArgumentParser(description='train MNIST MLP classifier')
     parser.add_argument('-c', '--config', default='main', help='training config')

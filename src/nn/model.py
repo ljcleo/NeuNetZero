@@ -3,8 +3,8 @@ from pickle import dump, load
 
 import numpy as np
 
-from initializer import Gaussian
-from layer import Dropout, Flatten, Linear, Module, ReLU
+from .initializer import Gaussian
+from .layer import Dropout, Flatten, Linear, Module, ReLU
 
 
 class Model:

@@ -3,8 +3,8 @@ from typing import Optional
 
 import numpy as np
 
-from loader import DataLoader
-from model import Model
+from ..data.loader import DataLoader
+from ..nn.model import Model
 
 
 def evaluate(model: Model, loader: DataLoader) -> float:

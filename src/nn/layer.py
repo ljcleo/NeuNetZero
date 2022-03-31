@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 import numpy as np
 
-from initializer import Constant, Gaussian, Initializer
+from .initializer import Constant, Gaussian, Initializer
 
 
 class Module(ABC):

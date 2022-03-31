@@ -5,11 +5,20 @@ from pathlib import Path
 
 from requests import Response, get
 
-from logger import make_logger
-from util import get_path
+from src.tool.logger import make_logger
+from src.tool.util import get_path
 
 
 def download(url: str, md5: str, path: Path) -> bool:
+    if path.exists():
+        try:
+            with path.open('rb') as f:
+                data: bytes = f.read()
+            if new('md5', data).hexdigest() == md5:
+                return True
+        except Exception:
+            pass
+
     try:
         response: Response = get(url)
         if response.status_code != 200:
@@ -27,7 +36,7 @@ def download(url: str, md5: str, path: Path) -> bool:
 
 
 if __name__ == '__main__':
-    root_path: Path = Path('..')
+    root_path: Path = Path('.')
     training_path: Path = get_path(root_path, 'data', 'training')
     test_path: Path = get_path(root_path, 'data', 'test')
     mnist_url: str = 'http://yann.lecun.com/exdb/mnist'

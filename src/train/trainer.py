@@ -4,11 +4,11 @@ from typing import Optional, Type
 
 import numpy as np
 
-from loader import DataLoader
-from loss import Loss
-from model import Model
-from optimizer import Optimizer
-from scheduler import Scheduler
+from ..data.loader import DataLoader
+from ..nn.loss import Loss
+from ..nn.model import Model
+from ..nn.optimizer import Optimizer
+from ..nn.scheduler import Scheduler
 
 
 class Trainer:

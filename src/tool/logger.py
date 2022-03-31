@@ -1,7 +1,7 @@
 from logging import Logger, StreamHandler, getLogger, FileHandler, Formatter
 from pathlib import Path
 
-from util import get_path
+from .util import get_path
 
 
 def make_logger(name: str, root_path: Path, console: bool, direct: bool = False) -> Logger:

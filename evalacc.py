@@ -7,23 +7,23 @@ from typing import Any
 import numpy as np
 from yaml import safe_load
 
-from dataset import MNISTDataset
-from loader import DataLoader
-from logger import make_logger
-from model import ImageClsMLP
-from util import get_path, evaluate
-from visualize import visualize_compare
+from src.data.dataset import MNISTDataset
+from src.data.loader import DataLoader
+from src.nn.model import ImageClsMLP
+from src.tool.logger import make_logger
+from src.tool.util import evaluate, get_path
+from src.tool.visualize import visualize_compare
 
 if __name__ == '__main__':
     np.random.seed(19260817)
-    root_path: Path = Path('..')
+    root_path: Path = Path('.')
 
     parser: ArgumentParser = ArgumentParser(description='evaluate MNIST MLP classifier accuracy')
     parser.add_argument('-c', '--config', default='main', help='model config')
     args: Namespace = parser.parse_args()
     config_name: str = args.config
 
-    logger: Logger = make_logger(f'{config_name}-test', root_path, True)
+    logger: Logger = make_logger(f'{config_name}-eval', root_path, True)
     logger.info(f'Loading model configuration from "{config_name}.yaml" ...')
 
     with (get_path(root_path, 'config') / f'{config_name}.yaml').open('r', encoding='utf8') as f:

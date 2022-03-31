@@ -1,4 +1,5 @@
 from itertools import cycle
+from math import floor
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -6,8 +7,8 @@ import numpy as np
 from matplotlib.axes import Axes
 from pylab import style
 
-from layer import Linear
-from model import ImageClsMLP
+from ..nn.layer import Linear
+from ..nn.model import ImageClsMLP
 
 
 def visualize_params(model: ImageClsMLP, name: str, suffix: str, path: Path) -> None:
@@ -58,11 +59,13 @@ def visualize_compare(result: list[tuple[str, str, int, float]], name: str, path
     group_name: list[str] = []
     subgroup_name: list[str] = []
     convert: dict[tuple[str, str], float] = {}
+    min_acc: float = 1
 
     for optimizer, scheduler, batch_size, test_acc in result:
         group: str = f'{optimizer}-{scheduler}'
         subgroup: str = f'Batch Size {batch_size}'
         convert[group, subgroup] = test_acc
+        min_acc = min(min_acc, test_acc)
 
         if group not in group_name:
             group_name.append(group)
@@ -86,7 +89,7 @@ def visualize_compare(result: list[tuple[str, str, int, float]], name: str, path
 
     ax.set_xticks(x_center, group_name)
     ax.set_xlabel('Optimizer-Scheduler')
-    ax.set_ylim([0.9, 1])
+    ax.set_ylim([floor(min_acc * 10) / 10, 1])
     ax.set_ylabel('Test Accuracy')
     ax.legend(subgroup_name)
 

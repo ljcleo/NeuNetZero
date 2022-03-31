@@ -1,7 +1,8 @@
-from dataset import Dataset
 from typing import Any, Iterator
 
 import numpy as np
+
+from .dataset import Dataset
 
 
 class DataIterator:

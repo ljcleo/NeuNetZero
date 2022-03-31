@@ -7,30 +7,26 @@ from typing import Any
 import numpy as np
 from yaml import safe_load
 
-from dataset import MNISTDataset
-from loader import DataLoader
-from logger import make_logger
-from model import ImageClsMLP
-from util import get_path
-from visualize import visualize_error_case
+from src.data.dataset import MNISTDataset
+from src.data.loader import DataLoader
+from src.nn.model import ImageClsMLP
+from src.tool.logger import make_logger
+from src.tool.util import get_path
+from src.tool.visualize import visualize_confusion_matrix
 
 if __name__ == '__main__':
     np.random.seed(19260817)
-    root_path: Path = Path('..')
+    root_path: Path = Path('.')
 
     parser: ArgumentParser = ArgumentParser(
-        description='visualize MNIST MLP classifier error cases'
+        description='visualize MNIST MLP classifier test confusion matrix'
     )
 
     parser.add_argument('-c', '--config', default='main', help='model config')
-    parser.add_argument('-n', '--num-cases', default=9, type=int,
-                        help='maximum number of error cases')
-
     args: Namespace = parser.parse_args()
     config_name: str = args.config
-    n_cases: int = args.num_cases
 
-    logger: Logger = make_logger(f'{config_name}-errorcase', root_path, True)
+    logger: Logger = make_logger(f'{config_name}-confusion', root_path, True)
     logger.info(f'Loading model configuration from "{config_name}.yaml" ...')
 
     with (get_path(root_path, 'config') / f'{config_name}.yaml').open('r', encoding='utf8') as f:
@@ -58,7 +54,7 @@ if __name__ == '__main__':
                 if not model_path.exists():
                     continue
 
-                logger.info(f'Visualizing error cases of {real_name} ...')
+                logger.info(f'Visualizing confusion matrix of {real_name} ...')
                 test_loader: DataLoader = DataLoader(test_set, batch_size, config['shuffle'],
                                                      config['drop_last'])
 
@@ -66,25 +62,15 @@ if __name__ == '__main__':
                                                  config['dropout_rate'])
                 model.load_params(model_path)
                 model.toggle_train(False)
-
-                error_input: list[np.ndarray] = []
-                error_output: list[np.ndarray] = []
-                error_pred: list[np.ndarray] = []
-                n_current: int = 0
+                all_pred: list[np.ndarray] = []
+                all_label: list[np.ndarray] = []
 
                 for input_batch, output_batch in test_loader:
-                    pred: np.ndarray = np.argmax(model.forward(input_batch), axis=1)
-                    index: np.ndarray = np.flatnonzero(pred != output_batch)[:n_cases - n_current]
-                    error_input.append(input_batch[index])
-                    error_output.append(output_batch[index])
-                    error_pred.append(pred[index])
-                    n_current += index.shape[0]
+                    all_pred.append(model.forward(input_batch))
+                    all_label.append(output_batch)
 
-                    if n_current >= n_cases:
-                        break
+                visualize_confusion_matrix(10, np.argmax(np.concatenate(all_pred), axis=1),
+                                           np.concatenate(all_label), real_name,
+                                           get_path(root_path, 'img', name))
 
-                visualize_error_case(np.concatenate(error_input), np.concatenate(error_output),
-                                     np.concatenate(error_pred), 3, real_name,
-                                     get_path(root_path, 'img', name))
-
-    logger.info('Finished visualizing error cases of all models.')
+    logger.info('Finished visualizing confusion matrix of all models.')

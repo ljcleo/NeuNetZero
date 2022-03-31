@@ -26,8 +26,8 @@ def mnist_compare(image_size: tuple[int, int], n_class: int, dropout_rate: float
                   batch_size: list[int], train_set: Dataset, valid_set: Dataset, test_set: Dataset,
                   shuffle: bool, drop_last: bool, max_epoch: int, patience: int,
                   improve_threshold: float, use_best_param: bool, name: str,
-                  root_path: Path) -> dict[str, tuple[str, str, int, float, float, int, float]]:
-    result: dict[str, tuple[str, str, int, float, float, int, float]] = {}
+                  root_path: Path) -> list[tuple[str, str, str, int, float, float, int, float]]:
+    result: list[tuple[str, str, str, int, float, float, int, float]] = []
     start_time: float = time()
     logger: Logger = make_logger(name, root_path, True)
     logger.info('Start training models ...')
@@ -54,7 +54,8 @@ def mnist_compare(image_size: tuple[int, int], n_class: int, dropout_rate: float
                                                       dropout_rate)
                 best_model.load_params(get_path(root_path, 'model', name) / f'{new_name}.pkl')
                 test_acc: float = evaluate(best_model, test_loader)
-                result[new_name] = (opt['name'], sch['name'], bs) + best_hyper_params + (test_acc, )
+                result.append((new_name, opt['name'], sch['name'], bs) + best_hyper_params +
+                              (test_acc, ))
 
                 logger.info(f'Finished grid search. Test Accuracy: {test_acc:.4f} ' +
                             f'Elapsed Time: {time() - search_start_time:.2f}s\n' +

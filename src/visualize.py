@@ -1,4 +1,3 @@
-from collections import defaultdict
 from itertools import cycle
 from pathlib import Path
 
@@ -55,31 +54,30 @@ def visualize_training(train_loss: list[float], valid_loss: list[float], valid_a
     plt.close()
 
 
-def visualize_compare(result: dict[str, tuple[str, str, int, float, float, int, float]],
-                      name: str, path: Path) -> None:
-    groups: defaultdict[int, list[tuple[str, float]]] = defaultdict(list)
+def visualize_compare(result: list[tuple[str, str, int, float]], name: str, path: Path) -> None:
     group_name: list[str] = []
+    subgroup_name: list[str] = []
+    convert: dict[tuple[str, str], float] = {}
 
-    for optimizer, scheduler, batch_size, _, _, _, test_acc in result.values():
-        groups[batch_size].append((f'{optimizer}-{scheduler}', test_acc))
+    for optimizer, scheduler, batch_size, test_acc in result:
+        group: str = f'{optimizer}-{scheduler}'
+        subgroup: str = f'Batch Size {batch_size}'
+        convert[group, subgroup] = test_acc
 
-    subgroup_name: list[str] = [str(x) for x in groups]
-    subgroup_name.sort()
+        if group not in group_name:
+            group_name.append(group)
+        if subgroup not in subgroup_name:
+            subgroup_name.append(subgroup)
 
-    for v in groups.values():
-        v.sort()
-
-        if len(group_name) == 0:
-            for k, _ in v:
-                group_name.append(k)
-
-    plot_data: dict[str, list[float]] = {str(k): np.array([x for _, x in v])
-                                         for k, v in groups.items()}
+    plot_data: dict[str, list[float]] = {
+        subgroup: np.array([convert[group, subgroup] for group in group_name])
+        for subgroup in subgroup_name
+    }
 
     style.use('Solarize_Light2')
-    ax: Axes = plt.figure(figsize=(15, 6)).gca()
+    ax: Axes = plt.figure(figsize=(max(6, round(len(group_name) * 2.5)), 6)).gca()
     x_center: np.ndarray = np.arange(len(group_name))
-    width: float = 0.1
+    width: float = 0.6 / len(subgroup_name)
     offset: float = (1 - len(subgroup_name)) / 2 * width
 
     for subgroup in subgroup_name:
@@ -87,9 +85,10 @@ def visualize_compare(result: dict[str, tuple[str, str, int, float, float, int, 
         offset += width
 
     ax.set_xticks(x_center, group_name)
-    ax.set_xlabel('Optimizer and Scheduler')
+    ax.set_xlabel('Optimizer-Scheduler')
+    ax.set_ylim([0.9, 1])
     ax.set_ylabel('Test Accuracy')
-    ax.legend([f'Batch Size {x}' for x in subgroup_name])
+    ax.legend(subgroup_name)
 
     plt.title(f'Model "{name}" Test Accuracy')
     plt.tight_layout()
@@ -97,8 +96,8 @@ def visualize_compare(result: dict[str, tuple[str, str, int, float, float, int, 
     plt.close()
 
 
-def visualize_test(input_batch: np.ndarray, output_batch: np.ndarray, pred: np.ndarray,
-                   columns: int, name: str, path: Path) -> None:
+def visualize_error_case(input_batch: np.ndarray, output_batch: np.ndarray, pred: np.ndarray,
+                         columns: int, name: str, path: Path) -> None:
     batch_size: int = input_batch.shape[0]
     rows: int = (batch_size - 1) // columns + 1
 
@@ -114,4 +113,30 @@ def visualize_test(input_batch: np.ndarray, output_batch: np.ndarray, pred: np.n
     plt.suptitle(f'Model "{name}" Error Case', size=20)
     plt.tight_layout()
     plt.savefig(path / f'{name}-errorcase.png', dpi=150)
+    plt.close()
+
+
+def visualize_confusion_matrix(n_class: int, pred: np.ndarray, label: np.ndarray,
+                               name: str, path: Path) -> None:
+    matrix: np.ndarray = np.zeros((n_class, n_class), dtype=np.int32)
+    for coord in zip(pred, label):
+        matrix[coord] += 1
+
+    style.use('Solarize_Light2')
+    plt.figure(figsize=(6, 6))
+    plt.matshow(matrix, 0, cmap='PRGn')
+    plt.colorbar(shrink=0.75)
+
+    for i in range(n_class):
+        for j in range(n_class):
+            plt.text(i, j, matrix[j, i], c='white', va='center', ha='center')
+
+    plt.xticks(np.arange(10), np.arange(10))
+    plt.xlabel('Label')
+    plt.yticks(np.arange(10), np.arange(10))
+    plt.ylabel('Prediction')
+    plt.grid(False)
+    plt.title(f'Model "{name}" Confusion Matrix')
+    plt.tight_layout()
+    plt.savefig(path / f'{name}-confusion.png', dpi=150)
     plt.close()

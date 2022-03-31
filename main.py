@@ -54,4 +54,4 @@ if __name__ == '__main__':
                              'best_lr', 'best_l2', 'best_hidden', 'test_acc'))
         csv_writer.writerows(compare_result)
 
-    logger.info('Finished writting results.')
+    logger.info('Finished writing results.')

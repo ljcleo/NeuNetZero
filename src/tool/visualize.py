@@ -99,7 +99,7 @@ def visualize_compare(result: list[tuple[str, str, int, float]], name: str, path
     plt.close()
 
 
-def visualize_error_case(input_batch: np.ndarray, output_batch: np.ndarray, pred: np.ndarray,
+def visualize_error_case(input_batch: np.ndarray, output_batch: np.ndarray, prob: np.ndarray,
                          columns: int, name: str, path: Path) -> None:
     batch_size: int = input_batch.shape[0]
     rows: int = (batch_size - 1) // columns + 1
@@ -108,10 +108,14 @@ def visualize_error_case(input_batch: np.ndarray, output_batch: np.ndarray, pred
     plt.figure(figsize=(2 * columns, 2 * rows))
 
     for i in range(batch_size):
+        pred: int = np.argmax(prob[i])
+        label: int = output_batch[i]
+
         plt.subplot(rows, columns, i + 1)
         plt.imshow(input_batch[i], cmap='binary')
         plt.axis('off')
-        plt.title(f'P{pred[i]}-L{output_batch[i]}')
+        plt.title(f'{pred}: {prob[i, pred]:.0%} | {label}: {prob[i, label]:.0%}',
+                  fontdict={'fontsize': 12})
 
     plt.suptitle(f'Model "{name}" Error Case', size=20)
     plt.tight_layout()

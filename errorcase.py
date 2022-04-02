@@ -11,7 +11,7 @@ from src.data.dataset import MNISTDataset
 from src.data.loader import DataLoader
 from src.nn.model import ImageClsMLP
 from src.tool.logger import make_logger
-from src.tool.util import get_path
+from src.tool.util import get_path, softmax
 from src.tool.visualize import visualize_error_case
 
 if __name__ == '__main__':
@@ -69,22 +69,23 @@ if __name__ == '__main__':
 
                 error_input: list[np.ndarray] = []
                 error_output: list[np.ndarray] = []
-                error_pred: list[np.ndarray] = []
+                error_prob: list[np.ndarray] = []
                 n_current: int = 0
 
                 for input_batch, output_batch in test_loader:
-                    pred: np.ndarray = np.argmax(model.forward(input_batch), axis=1)
+                    prob: np.ndarray = softmax(model.forward(input_batch))
+                    pred: np.ndarray = np.argmax(prob, axis=1)
                     index: np.ndarray = np.flatnonzero(pred != output_batch)[:n_cases - n_current]
                     error_input.append(input_batch[index])
                     error_output.append(output_batch[index])
-                    error_pred.append(pred[index])
+                    error_prob.append(prob[index])
                     n_current += index.shape[0]
 
                     if n_current >= n_cases:
                         break
 
                 visualize_error_case(np.concatenate(error_input), np.concatenate(error_output),
-                                     np.concatenate(error_pred), 3, real_name,
+                                     np.concatenate(error_prob), 3, real_name,
                                      get_path(root_path, 'img', name))
 
     logger.info('Finished visualizing error cases of all models.')

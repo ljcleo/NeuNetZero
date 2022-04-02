@@ -1,0 +1,24 @@
+name: mlp2
+dropout_rate: 0.25
+shuffle: true
+drop_last: false
+max_epoch: 2000
+patience: 10
+improve_threshold: 0.001
+use_best_param: true
+compare:
+  optimizer:
+    - name: MomentumSGD
+      params:
+        beta: 0.9
+  scheduler:
+    - name: null
+  batch_size:
+    - 64
+grid_search:
+  learning_rate:
+    - 0.0002
+  l2_lambda:
+    - 0.001
+  hidden_size:
+    - 768

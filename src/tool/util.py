@@ -7,6 +7,11 @@ from ..data.loader import DataLoader
 from ..nn.model import Model
 
 
+def softmax(x: np.ndarray) -> np.ndarray:
+    x = np.exp(x - np.max(x, axis=-1, keepdims=True))
+    return x / np.sum(x, axis=-1, keepdims=True)
+
+
 def evaluate(model: Model, loader: DataLoader) -> float:
     model.toggle_train(False)
     all_pred: list[np.ndarray] = []

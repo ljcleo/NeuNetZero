@@ -32,7 +32,7 @@ A two-layer MLP training and evaluation toolchain for the [MNIST dataset](http:/
 
    This script will create four types of files. The training logs are stored in `log/config-name/`. The training curves along with layer visualization plots are saved in `img/config-name/`, named `model-name-curve.png` and `model-name-layer*-[start|end].png` respectively. The trained models are dumped into `model/config-name/model-name.pkl`. The summary results are written to `out/config-name.csv`, including model settings, best grid-search parameters and test accuracy of each model.
 
-   Trained models and summaries using preset configurations can be downloaded using the following link. Just extract the Zip archive and put the folders into the root directory.
+   Trained models and summaries using preset configurations can be downloaded [here](https://drive.google.com/drive/folders/1yoZQwW7INrc1IqtHaqqp5nHKGw1ttsgl?usp=sharing). Just extract the archives and put the extracted folders into the `model` directory.
 
 3. Run `python evalacc.py` to evaluate training and test accuracies of all models trained. Results are written to `out/config-name-eval.csv`, and a comparison bar plot is saved to `img/config-name/config-name-compare.img`.
 

@@ -3,7 +3,7 @@ from hashlib import new
 from logging import Logger
 from pathlib import Path
 
-from requests import Response, get
+from requests import get
 
 from src.tool.logger import make_logger
 from src.tool.util import get_path
@@ -20,16 +20,17 @@ def download(url: str, md5: str, path: Path) -> bool:
             pass
 
     try:
-        response: Response = get(url)
-        if response.status_code != 200:
-            return False
+        with get(url) as response:
+            if response.status_code != 200:
+                return False
 
-        data: bytes = decompress(response.content)
-        if new('md5', data).hexdigest() != md5:
-            return False
+            data: bytes = decompress(response.content)
+            if new('md5', data).hexdigest() != md5:
+                return False
 
-        with path.open('wb') as f:
-            f.write(data)
+            with path.open('wb') as f:
+                f.write(data)
+
         return True
     except Exception:
         return False
